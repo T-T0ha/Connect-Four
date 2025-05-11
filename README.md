@@ -6,7 +6,7 @@ A classic **Connect 4** game built in **Lua using the LÖVE2D framework**, featu
 * Player vs AI mode
 * AI powered by **Minimax algorithm** with **Alpha-Beta pruning**
 
-> 🎮 Built as a group project by 3 team members. Ideal for academic game AI demonstrations.
+> 🎮 Built as a group project by 3 team members.
 
 ---
 
@@ -27,19 +27,6 @@ A classic **Connect 4** game built in **Lua using the LÖVE2D framework**, featu
 
 ---
 
-## 📁 Project Structure
-
-```
-connect4_lua_love2d/
-├── main.lua         # LÖVE2D main entry point
-├── board.lua        # Game board logic
-├── ai.lua           # Minimax AI logic
-├── game.lua         # Game controller and UI logic
-├── assets/          # (Optional) Folder for fonts/images
-└── README.md        # Project overview
-```
-
----
 
 ## 🚀 Getting Started
 
