@@ -12,7 +12,7 @@ function love.update(dt)
 end
 
 function love.draw()
-    love.graphics.clear(0.96, 0.96, 0.96)  -- Light gray background
+    love.graphics.clear(0.96, 0.96, 0.96)
     game_gui:draw()
 end
 
