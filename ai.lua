@@ -31,6 +31,34 @@ function minimax(node, depth, isMax)
     end
 end
 
+function alphabeta(node, depth, alpha, beta, isMax)
+    if #node.children == 0 then
+        return node.value
+    end
+    
+    if isMax then
+        local value = -math.huge
+        for _, child in ipairs(node.children) do
+            value = math.max(value, alphabeta(child, depth + 1, alpha, beta, false))
+            alpha = math.max(alpha, value)
+            if beta <= alpha then
+                break -- Beta cutoff
+            end
+        end
+        return value
+    else
+        local value = math.huge
+        for _, child in ipairs(node.children) do
+            value = math.min(value, alphabeta(child, depth + 1, alpha, beta, true))
+            beta = math.min(beta, value)
+            if beta <= alpha then
+                break -- Alpha cutoff
+            end
+        end
+        return value
+    end
+end
+
 function main()
     
     local leaf1 = TreeNode:new(3)
@@ -54,6 +82,7 @@ function main()
     
     local result = minimax(root, 0, true)
     print("The optimal value is : " .. result)
+    print(alphabeta(root, 0, -math.huge, math.huge, true));
 end
 
 main()
