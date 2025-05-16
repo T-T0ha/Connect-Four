@@ -28,6 +28,18 @@ function Board:new()
     return board
 end
 
+function Board:copy()
+    local newBoard = Board:new()
+    for r = 1, self.ROWS do
+        for c = 1, self.COLS do
+            newBoard.grid[r][c] = self.grid[r][c]
+        end
+    end
+    newBoard.currentPlayer = self.currentPlayer
+    newBoard.gameOver = self.gameOver
+    newBoard.winner = self.winner
+    return newBoard
+end
 
 function Board:isValidMove(col)
     if col < 1 or col > self.COLS then
@@ -140,88 +152,90 @@ function Board:print()
     print()
 end
 
-function demonstrateGameLogic()
-    print("\n=== Connect-4 Game Logic Demonstration ===")
-    local board = Board:new()
-    
-    print("\nScenario 1: Demonstrating Horizontal Win")
-    print("Making moves: Player 1 (X) in columns 1,2,3,4")
-    board:makeMove(1, Board.PLAYER1)
-    board:makeMove(2, Board.PLAYER1)
-    board:makeMove(3, Board.PLAYER1)
-    board:makeMove(4, Board.PLAYER1)
-    board:print()
-    local won, desc = board:checkWin(Board.PLAYER1)
-    if won then
-        print("Win detected: " .. desc)
-    end
-    
-    print("\nScenario 2: Demonstrating Vertical Win")
-    board = Board:new()
-    print("Making moves: Player 2 (●) in column 3, rows 1-4")
-    board:makeMove(3, Board.PLAYER2)
-    board:makeMove(3, Board.PLAYER2)
-    board:makeMove(3, Board.PLAYER2)
-    board:makeMove(3, Board.PLAYER2)
-    board:print()
-    won, desc = board:checkWin(Board.PLAYER2)
-    if won then
-        print("Win detected: " .. desc)
-    end
-    
-    print("\nScenario 3: Demonstrating Diagonal Win")
-    board = Board:new()
-    print("Setting up diagonal pattern for Player 1")
-    board:makeMove(1, Board.PLAYER1)
-    board:makeMove(2, Board.PLAYER2)
-    board:makeMove(2, Board.PLAYER1)
-    board:makeMove(3, Board.PLAYER2)
-    board:makeMove(3, Board.PLAYER2)
-    board:makeMove(3, Board.PLAYER1)
-    board:makeMove(4, Board.PLAYER2)
-    board:makeMove(4, Board.PLAYER2)
-    board:makeMove(4, Board.PLAYER2)
-    board:makeMove(4, Board.PLAYER1)
-    board:print()
-    won, desc = board:checkWin(Board.PLAYER1)
-    if won then
-        print("Win detected: " .. desc)
-    end
+return Board
 
-    print("\nScenario 4: Demonstrating Invalid Move Detection")
-    board = Board:new()
-
-    for i = 1, 6 do
-        board:makeMove(1, Board.PLAYER1)
-    end
-    board:print()
-    print("Attempting to place in full column 1:")
-    if not board:makeMove(1, Board.PLAYER2) then
-        print("Invalid move detected: Column is full")
-    end
+-- function demonstrateGameLogic()
+--     print("\n=== Connect-4 Game Logic Demonstration ===")
+--     local board = Board:new()
     
-    print("\nScenario 5: Demonstrating Draw Detection")
-    board = Board:new()
+--     print("\nScenario 1: Demonstrating Horizontal Win")
+--     print("Making moves: Player 1 (X) in columns 1,2,3,4")
+--     board:makeMove(1, Board.PLAYER1)
+--     board:makeMove(2, Board.PLAYER1)
+--     board:makeMove(3, Board.PLAYER1)
+--     board:makeMove(4, Board.PLAYER1)
+--     board:print()
+--     local won, desc = board:checkWin(Board.PLAYER1)
+--     if won then
+--         print("Win detected: " .. desc)
+--     end
     
-    local pattern = {
-        {1,2,1,2,1,2,1},
-        {2,1,2,1,2,1,2},
-        {1,2,1,2,1,2,1},
-        {2,1,2,1,2,1,2},
-        {1,2,1,2,1,2,1},
-        {2,1,2,1,2,1,2}
-    }
-    print("Filling board with a pattern that leads to a draw")
-    for row = 1, #pattern do
-        for col = 1, #pattern[row] do
-            board.grid[row][col] = pattern[row][col]
-        end
-    end
-    board:print()
-    if board:isFull() then
-        print("Draw detected: Board is full with no winner")
-    end
-end
+--     print("\nScenario 2: Demonstrating Vertical Win")
+--     board = Board:new()
+--     print("Making moves: Player 2 (●) in column 3, rows 1-4")
+--     board:makeMove(3, Board.PLAYER2)
+--     board:makeMove(3, Board.PLAYER2)
+--     board:makeMove(3, Board.PLAYER2)
+--     board:makeMove(3, Board.PLAYER2)
+--     board:print()
+--     won, desc = board:checkWin(Board.PLAYER2)
+--     if won then
+--         print("Win detected: " .. desc)
+--     end
+    
+--     print("\nScenario 3: Demonstrating Diagonal Win")
+--     board = Board:new()
+--     print("Setting up diagonal pattern for Player 1")
+--     board:makeMove(1, Board.PLAYER1)
+--     board:makeMove(2, Board.PLAYER2)
+--     board:makeMove(2, Board.PLAYER1)
+--     board:makeMove(3, Board.PLAYER2)
+--     board:makeMove(3, Board.PLAYER2)
+--     board:makeMove(3, Board.PLAYER1)
+--     board:makeMove(4, Board.PLAYER2)
+--     board:makeMove(4, Board.PLAYER2)
+--     board:makeMove(4, Board.PLAYER2)
+--     board:makeMove(4, Board.PLAYER1)
+--     board:print()
+--     won, desc = board:checkWin(Board.PLAYER1)
+--     if won then
+--         print("Win detected: " .. desc)
+--     end
+
+--     print("\nScenario 4: Demonstrating Invalid Move Detection")
+--     board = Board:new()
+
+--     for i = 1, 6 do
+--         board:makeMove(1, Board.PLAYER1)
+--     end
+--     board:print()
+--     print("Attempting to place in full column 1:")
+--     if not board:makeMove(1, Board.PLAYER2) then
+--         print("Invalid move detected: Column is full")
+--     end
+    
+--     print("\nScenario 5: Demonstrating Draw Detection")
+--     board = Board:new()
+    
+--     local pattern = {
+--         {1,2,1,2,1,2,1},
+--         {2,1,2,1,2,1,2},
+--         {1,2,1,2,1,2,1},
+--         {2,1,2,1,2,1,2},
+--         {1,2,1,2,1,2,1},
+--         {2,1,2,1,2,1,2}
+--     }
+--     print("Filling board with a pattern that leads to a draw")
+--     for row = 1, #pattern do
+--         for col = 1, #pattern[row] do
+--             board.grid[row][col] = pattern[row][col]
+--         end
+--     end
+--     board:print()
+--     if board:isFull() then
+--         print("Draw detected: Board is full with no winner")
+--     end
+-- end
 
 
-demonstrateGameLogic()
+-- demonstrateGameLogic()

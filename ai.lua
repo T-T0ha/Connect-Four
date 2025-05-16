@@ -2,7 +2,7 @@ TreeNode = {}
 function TreeNode:new(value, children)
     local obj = {
         value = value,
-        children = children or {} 
+        children = children or {}
     }
     setmetatable(obj, self)
     self.__index = self
@@ -10,28 +10,47 @@ function TreeNode:new(value, children)
 end
 
 
-function minimaxWithAlphabeta(node, depth, alpha, beta, isMax)
-    if #node.children == 0 then
-        return node.value
+function minimaxWithAlphabeta(board, depth, alpha, beta, isMax, maximizingPlayer)
+    local winningMove, _ = board:checkWin(maximizingPlayer)
+    if winningMove then
+        return 1000000 - depth
     end
-    
+    local losingMove, _ = board:checkWin(3 - maximizingPlayer)
+    if losingMove then
+        return -1000000 + depth
+    end
+    if board:isFull() then
+        return 0
+    end
+    if depth == 4 then -- Limit search depth for performance
+        return heuristic(board.grid, maximizingPlayer)
+    end
+
     if isMax then
         local value = -math.huge
-        for _, child in ipairs(node.children) do
-            value = math.max(value, minimaxWithAlphabeta(child, depth + 1, alpha, beta, false))
-            alpha = math.max(alpha, value)
-            if beta <= alpha then
-                break -- Beta cutoff
+        for col = 1, board.COLS do
+            if board:isValidMove(col) then
+                local newBoard = board:copy()
+                newBoard:makeMove(col, maximizingPlayer)
+                value = math.max(value, minimaxWithAlphabeta(newBoard, depth + 1, alpha, beta, false, maximizingPlayer))
+                alpha = math.max(alpha, value)
+                if beta <= alpha then
+                    break
+                end
             end
         end
         return value
     else
         local value = math.huge
-        for _, child in ipairs(node.children) do
-            value = math.min(value, minimaxWithAlphabeta(child, depth + 1, alpha, beta, true))
-            beta = math.min(beta, value)
-            if beta <= alpha then
-                break -- Alpha cutoff
+        for col = 1, board.COLS do
+            if board:isValidMove(col) then
+                local newBoard = board:copy()
+                newBoard:makeMove(col, 3 - maximizingPlayer)
+                value = math.min(value, minimaxWithAlphabeta(newBoard, depth + 1, alpha, beta, true, maximizingPlayer))
+                beta = math.min(beta, value)
+                if beta <= alpha then
+                    break
+                end
             end
         end
         return value
@@ -39,9 +58,8 @@ function minimaxWithAlphabeta(node, depth, alpha, beta, isMax)
 end
 
 
-function heuristic(board)
-    local aiPlayer = 2  -- Assuming AI is player 2
-    local humanPlayer = 1  -- Assuming human is player 1
+function heuristic(board,aiPlayer)
+    local humanPlayer = 3 - aiPlayer
     local score = 0
     
     -- Check horizontal, vertical, and diagonal possibilities
@@ -119,30 +137,7 @@ function evaluateWindow(window, aiPlayer, humanPlayer)
     return 0        -- Neutral window
 end
 
-
-function main()
-    
-    local leaf1 = TreeNode:new(3)
-    local leaf2 = TreeNode:new(5)
-    local leaf3 = TreeNode:new(2)
-    local leaf4 = TreeNode:new(9)
-    local leaf5 = TreeNode:new(12)
-    local leaf6 = TreeNode:new(5)
-    local leaf7 = TreeNode:new(23)
-    local leaf8 = TreeNode:new(23)
-    
-    local node1 = TreeNode:new(nil, {leaf1, leaf2})
-    local node2 = TreeNode:new(nil, {leaf3, leaf4})
-    local node3 = TreeNode:new(nil, {leaf5, leaf6, leaf7}) 
-    local node4 = TreeNode:new(nil, {leaf8})               
-    
-    local node5 = TreeNode:new(nil, {node1, node2})
-    local node6 = TreeNode:new(nil, {node3, node4})
-    
-    local root = TreeNode:new(nil, {node5, node6})
-    
-    local result = minimaxWithAlphabeta(root, 0, -math.huge, math.huge, true)
-    print("Optimal value: " .. result);
-end
-
-main()
+return {
+    minimaxWithAlphabeta = minimaxWithAlphabeta,
+    heuristic = heuristic
+}

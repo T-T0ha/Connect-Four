@@ -1,4 +1,4 @@
-local GameGUI = require("../gui/ui")
+local GameGUI = require("ui")
 local game_gui
 
 function love.load()
