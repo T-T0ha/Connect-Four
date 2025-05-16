@@ -1,6 +1,5 @@
 local GameGUI = {}
 
--- Configuration using the provided color palette
 local COLUMNS = 7
 local ROWS = 6
 local CELL_SIZE = 80
@@ -18,7 +17,7 @@ local COLORS = {
 }
 
 function GameGUI:new()
-    --Local Object for demonstration
+    
     local obj = {
         board = {},
         hover_column = nil,
@@ -27,7 +26,6 @@ function GameGUI:new()
         winner = nil
     }
     
-    -- Initialize empty board
     for col = 1, COLUMNS do
         obj.board[col] = {}
         for row = 1, ROWS do
@@ -40,15 +38,15 @@ function GameGUI:new()
 end
 
 function GameGUI:draw()
-    -- Set background color
+    
     love.graphics.setColor(COLORS.background)
     love.graphics.rectangle("fill", 0, 0, love.graphics.getWidth(), love.graphics.getHeight())
     
-    -- Calculate total board dimensions
+    
     local board_width = COLUMNS * CELL_SIZE
     local board_height = ROWS * CELL_SIZE
     
-    -- Draw board background with subtle gradient effect
+    
     for i = 0, board_height do
         local ratio = i / board_height
         love.graphics.setColor(
@@ -59,7 +57,7 @@ function GameGUI:draw()
         love.graphics.rectangle("fill", MARGIN, MARGIN + i, board_width, 1)
     end
     
-    -- Draw hover indicator with pulsing effect
+    
     if self.hover_column and not self.game_over then
         local x = MARGIN + (self.hover_column - 1) * CELL_SIZE + CELL_SIZE / 2
         local pulse = 0.8 + 0.2 * math.sin(love.timer.getTime() * 5)
@@ -72,18 +70,18 @@ function GameGUI:draw()
         love.graphics.circle("fill", x, MARGIN / 2, RADIUS * 0.8)
     end
     
-    -- Draw cells with subtle shadows
+    
     for col = 1, COLUMNS do
         for row = 1, ROWS do
             local cell = self.board[col][row]
             local x = MARGIN + (col - 1) * CELL_SIZE + CELL_SIZE / 2
             local y = MARGIN + (ROWS - row) * CELL_SIZE + CELL_SIZE / 2
             
-            -- Draw shadow
+        
             love.graphics.setColor(0, 0, 0, 0.2)
             love.graphics.circle("fill", x + 2, y + 2, RADIUS)
             
-            -- Determine cell color
+        
             local color = COLORS.empty
             if cell == 1 then color = COLORS.player1
             elseif cell == 2 then color = COLORS.player2 end
@@ -91,7 +89,7 @@ function GameGUI:draw()
             love.graphics.setColor(color)
             love.graphics.circle("fill", x, y, RADIUS)
             
-            -- Add subtle highlight to pieces
+        
             if cell then
                 love.graphics.setColor(1, 1, 1, 0.2)
                 love.graphics.circle("fill", x - RADIUS/3, y - RADIUS/3, RADIUS/3)
@@ -99,7 +97,7 @@ function GameGUI:draw()
         end
     end
     
-    -- Draw current player indicator with animation
+    
     love.graphics.setColor(COLORS.current_player)
     local font = love.graphics.newFont(24)
     love.graphics.setFont(font)
@@ -111,9 +109,9 @@ function GameGUI:draw()
                         MARGIN, MARGIN + board_height + 15 + y_offset, 
                         board_width, "center")
     
-    -- Draw game over message with gradient background
+    
     if self.game_over then
-        -- Gradient background
+    
         for i = 0, 60 do
             local ratio = i / 60
             love.graphics.setColor(
@@ -135,7 +133,7 @@ function GameGUI:draw()
         love.graphics.printf(message, MARGIN, MARGIN + board_height / 2 - 20, 
                             board_width, "center")
         
-        -- Draw restart prompt with blinking effect
+    
         if math.floor(love.timer.getTime() * 2) % 2 == 0 then
             font = love.graphics.newFont(20)
             love.graphics.setFont(font)
@@ -147,7 +145,7 @@ function GameGUI:draw()
 end
 
 function GameGUI:update(dt)
-    -- Update hover column based on mouse position
+    
     local mouse_x, mouse_y = love.mouse.getPosition()
     if mouse_x >= MARGIN and mouse_x <= MARGIN + COLUMNS * CELL_SIZE then
         self.hover_column = math.floor((mouse_x - MARGIN) / CELL_SIZE) + 1
@@ -158,11 +156,13 @@ end
 
 function GameGUI:mousepressed(x, y, button)
     if button == 1 then  -- Left click
+        
         if self.game_over then
-            -- Reset game
+    
             self:new()
         elseif self.hover_column then
-            -- For demonstration, just add a piece to the bottom of the column
+            -- self . game_over = true;
+    
             self:addPiece(self.hover_column)
         end
     end
@@ -171,12 +171,12 @@ end
 function GameGUI:addPiece(column)
     if self.game_over then return end
     
-    -- Find the first empty row in the column
+    
     for row = 1, ROWS do
         if not self.board[column][row] then
             self.board[column][row] = self.current_player
             
-            -- Switch players
+    
             self.current_player = self.current_player == 1 and 2 or 1
             return
         end
