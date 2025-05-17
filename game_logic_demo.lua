@@ -6,7 +6,6 @@ local Board = {
     PLAYER2 = 2
 }
 
--- Initialize a new game board
 function Board:new()
     local board = {
         grid = {},
@@ -48,23 +47,20 @@ function Board:isValidMove(col)
     return self.grid[1][col] == self.EMPTY
 end
 
--- Make a move in the specified column
 function Board:makeMove(col, player)
     if not self:isValidMove(col) then
         return false
     end
     
-    -- Find the lowest empty position in the column
     for row = self.ROWS, 1, -1 do
         if self.grid[row][col] == self.EMPTY then
             self.grid[row][col] = player
-            return true
+            return true, row, col
         end
     end
     return false
 end
 
--- Check for a win condition
 function Board:checkWin(player)
     -- Check horizontal
     for row = 1, self.ROWS do
@@ -73,7 +69,14 @@ function Board:checkWin(player)
                self.grid[row][col + 1] == player and
                self.grid[row][col + 2] == player and
                self.grid[row][col + 3] == player then
-                return true, string.format("Horizontal win at row %d, starting at column %d", row, col)
+                -- Return winning coins positions for animation
+                local winCoins = {
+                    {row=row, col=col, player=player},
+                    {row=row, col=col+1, player=player},
+                    {row=row, col=col+2, player=player},
+                    {row=row, col=col+3, player=player}
+                }
+                return true, winCoins
             end
         end
     end
@@ -85,7 +88,13 @@ function Board:checkWin(player)
                self.grid[row + 1][col] == player and
                self.grid[row + 2][col] == player and
                self.grid[row + 3][col] == player then
-                return true, string.format("Vertical win at column %d, starting at row %d", col, row)
+                local winCoins = {
+                    {row=row, col=col, player=player},
+                    {row=row+1, col=col, player=player},
+                    {row=row+2, col=col, player=player},
+                    {row=row+3, col=col, player=player}
+                }
+                return true, winCoins
             end
         end
     end
@@ -97,7 +106,13 @@ function Board:checkWin(player)
                self.grid[row + 1][col + 1] == player and
                self.grid[row + 2][col + 2] == player and
                self.grid[row + 3][col + 3] == player then
-                return true, string.format("Diagonal win (positive slope) starting at row %d, column %d", row, col)
+                local winCoins = {
+                    {row=row, col=col, player=player},
+                    {row=row+1, col=col+1, player=player},
+                    {row=row+2, col=col+2, player=player},
+                    {row=row+3, col=col+3, player=player}
+                }
+                return true, winCoins
             end
         end
     end
@@ -109,7 +124,13 @@ function Board:checkWin(player)
                self.grid[row + 1][col - 1] == player and
                self.grid[row + 2][col - 2] == player and
                self.grid[row + 3][col - 3] == player then
-                return true, string.format("Diagonal win (negative slope) starting at row %d, column %d", row, col)
+                local winCoins = {
+                    {row=row, col=col, player=player},
+                    {row=row+1, col=col-1, player=player},
+                    {row=row+2, col=col-2, player=player},
+                    {row=row+3, col=col-3, player=player}
+                }
+                return true, winCoins
             end
         end
     end
@@ -153,7 +174,6 @@ function Board:print()
 end
 
 return Board
-
 -- function demonstrateGameLogic()
 --     print("\n=== Connect-4 Game Logic Demonstration ===")
 --     local board = Board:new()
