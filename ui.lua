@@ -12,14 +12,14 @@ local RADIUS = CELL_SIZE / 2 - 5
 local THEMES = {
     -- Original theme renamed to "Vintage Sunset"
     ["Vintage Sunset"] = {
-        empty = {255/255, 181/255, 167/255},  -- Light gray
-        player1 = {220/255, 47/255, 2/255},    -- Sinopia
-        player2 = {255/255, 186/255, 8/255},   -- Selective Yellow
-        board = {55/255, 6/255, 23/255},       -- Chocolate Cosmos
-        highlight = {244/255, 140/255, 6/255}, -- Princeton Orange
-        text = {250/255, 163/255, 7/255},      -- Orange Web
-        background = {199/255, 81/255, 70/255}, -- Rich Black
-        current_player = {232/255, 93/255, 4/255} -- Persimmon
+        empty = {255/255, 181/255, 167/255},
+        player1 = {220/255, 47/255, 2/255},
+        player2 = {255/255, 186/255, 8/255},
+        board = {55/255, 6/255, 23/255},       
+        highlight = {244/255, 140/255, 6/255},
+        text = {250/255, 163/255, 7/255},
+        background = {199/255, 81/255, 70/255}, 
+        current_player = {232/255, 93/255, 4/255}
     },
     ["Retro Pixel"] = {
         empty = {200/255, 220/255, 240/255},
@@ -31,7 +31,7 @@ local THEMES = {
         background = {40/255, 40/255, 80/255},
         current_player = {255/255, 150/255, 50/255}
     },
-    ["Minimal Monochrome"] = {
+    ["Monochrome"] = {
         empty = {240/255, 240/255, 240/255},
         player1 = {50/255, 50/255, 50/255},
         player2 = {150/255, 150/255, 150/255},
@@ -71,17 +71,56 @@ function GameGUI:new()
         state = "menu",
         selected_theme = 1,
         selected_difficulty = 2,
-        themes = {"Vintage Sunset", "Retro Pixel", "Minimal Monochrome", "Cyberpunk"},
+        themes = {"Vintage Sunset", "Retro Pixel", "Monochrome", "Cyberpunk"},
         difficulties = {"Easy", "Medium", "Hard"},
         animation_timer = 0,
         winning_coins = {},
         falling_coins = {},
         difficulty = "Medium",
-        sounds = {}
+        sounds = {},
+        show_theme_options = false,
+        show_difficulty_options = false,
+        
     }
     setmetatable(obj, {__index = GameGUI})
     return obj
 end
+
+
+
+function GameGUI:drawThemeOptions(x, y, width, COLORS)
+    local popup_height = #self.themes * 40
+    local popup_y = y + 60
+    
+    -- Popup background with gradient
+    for i = 0, popup_height do
+        local ratio = i / popup_height
+        love.graphics.setColor(
+            COLORS.board[1] * (1 - ratio) + ratio * COLORS.board[1] * 1.3,
+            COLORS.board[2] * (1 - ratio) + ratio * COLORS.board[2] * 1.3,
+            COLORS.board[3] * (1 - ratio) + ratio * COLORS.board[3] * 1.3,
+            0.95
+        )
+        love.graphics.rectangle("fill", x, popup_y + i, width, 1)
+    end
+    
+    -- Popup border
+    love.graphics.setColor(COLORS.highlight)
+    love.graphics.rectangle("line", x, popup_y, width, popup_height, 10)
+    
+    -- Theme options
+    for i, theme in ipairs(self.themes) do
+        local item_y = popup_y + (i - 1) * 40
+        if i == self.selected_theme then
+            love.graphics.setColor(COLORS.highlight)
+            love.graphics.rectangle("fill", x + 5, item_y + 5, width - 10, 30, 5)
+        end
+        love.graphics.setColor(COLORS.text)
+        love.graphics.printf(theme, x, item_y + 10, width, "center")
+    end
+end
+
+
 
 function GameGUI:getCurrentTheme()
     return THEMES[self.themes[self.selected_theme]]
@@ -98,73 +137,208 @@ function GameGUI:drawMenu()
     love.graphics.setFont(title_font)
     love.graphics.printf("CONNECT FOUR", 0, 50, love.graphics.getWidth(), "center")
     
-    -- Theme selection
-    local font = love.graphics.newFont(32)
-    love.graphics.setFont(font)
-    love.graphics.printf("SELECT THEME", 0, 150, love.graphics.getWidth(), "center")
+    -- Button dimensions
+    local button_width = 300
+    local button_height = 50
+    local button_x = (love.graphics.getWidth() - button_width) / 2
     
-    for i, theme in ipairs(self.themes) do
-        local y = 200 + (i-1) * 50
-        if i == self.selected_theme then
-            love.graphics.setColor(COLORS.highlight)
-            love.graphics.printf("> " .. theme .. " <", 0, y, love.graphics.getWidth(), "center")
-        else
-            love.graphics.setColor(COLORS.text)
-            love.graphics.printf(theme, 0, y, love.graphics.getWidth(), "center")
-        end
+    -- Theme Selection Button
+    local theme_button_y = 200
+    love.graphics.setColor(COLORS.board)
+    love.graphics.rectangle("fill", button_x, theme_button_y, button_width, button_height, 10)
+    love.graphics.setColor(COLORS.highlight)
+    love.graphics.rectangle("line", button_x, theme_button_y, button_width, button_height, 10)
+    love.graphics.setColor(COLORS.text)
+    local button_font = love.graphics.newFont(24)
+    love.graphics.setFont(button_font)
+    love.graphics.printf("Theme: " .. self.themes[self.selected_theme], button_x, theme_button_y + 12, button_width, "center")
+
+    -- Difficulty Selection Button
+    local difficulty_button_y = theme_button_y + 80
+    love.graphics.setColor(COLORS.board)
+    love.graphics.rectangle("fill", button_x, difficulty_button_y, button_width, button_height, 10)
+    love.graphics.setColor(COLORS.highlight)
+    love.graphics.rectangle("line", button_x, difficulty_button_y, button_width, button_height, 10)
+    love.graphics.setColor(COLORS.text)
+    love.graphics.printf("Difficulty: " .. self.difficulties[self.selected_difficulty], button_x, difficulty_button_y + 12, button_width, "center")
+
+    -- Start Game Button (only show when no options are open)
+    if not self.show_theme_options and not self.show_difficulty_options then
+        local start_button_y = difficulty_button_y + 80
+        local pulse = 0.8 + 0.2 * math.sin(love.timer.getTime() * 3)
+        love.graphics.setColor(COLORS.current_player)
+        love.graphics.rectangle("fill", button_x, start_button_y, button_width, button_height, 10)
+        love.graphics.setColor(1, 1, 1)
+        love.graphics.printf("START GAME", button_x, start_button_y + 12, button_width, "center")
+    end
+
+    -- Draw options pop-ups if active
+    if self.show_theme_options then
+        self:drawThemeOptions(button_x, theme_button_y, button_width, COLORS)
+    end
+
+    if self.show_difficulty_options then
+        self:drawDifficultyOptions(button_x, difficulty_button_y, button_width, COLORS)
+    end
+end
+
+function GameGUI:drawDifficultyOptions(x, y, width, COLORS)
+    local popup_height = #self.difficulties * 40
+    local popup_y = y + 60
+    
+    -- Popup background with gradient
+    for i = 0, popup_height do
+        local ratio = i / popup_height
+        love.graphics.setColor(
+            COLORS.board[1] * (1 - ratio) + ratio * COLORS.board[1] * 1.3,
+            COLORS.board[2] * (1 - ratio) + ratio * COLORS.board[2] * 1.3,
+            COLORS.board[3] * (1 - ratio) + ratio * COLORS.board[3] * 1.3,
+            0.95
+        )
+        love.graphics.rectangle("fill", x, popup_y + i, width, 1)
     end
     
-    -- Difficulty selection
-    love.graphics.printf("SELECT DIFFICULTY", 0, 400, love.graphics.getWidth(), "center")
+    love.graphics.setColor(COLORS.highlight)
+    love.graphics.rectangle("line", x, popup_y, width, popup_height, 10)
     
     for i, difficulty in ipairs(self.difficulties) do
-        local y = 450 + (i-1) * 50
+        local item_y = popup_y + (i - 1) * 40
         if i == self.selected_difficulty then
             love.graphics.setColor(COLORS.highlight)
-            love.graphics.printf("> " .. difficulty .. " <", 0, y, love.graphics.getWidth(), "center")
-        else
-            love.graphics.setColor(COLORS.text)
-            love.graphics.printf(difficulty, 0, y, love.graphics.getWidth(), "center")
+            love.graphics.rectangle("fill", x + 5, item_y + 5, width - 10, 30, 5)
         end
-    end
-    
-    -- Start prompt
-    love.graphics.setColor(COLORS.current_player)
-    if math.floor(love.timer.getTime() * 2) % 2 == 0 then
-        love.graphics.printf("PRESS ENTER TO START", 0, 600, love.graphics.getWidth(), "center")
+        love.graphics.setColor(COLORS.text)
+        love.graphics.printf(difficulty, x, item_y + 10, width, "center")
     end
 end
 
 function GameGUI:menuMousepressed(x, y, button)
     if button == 1 then
-        -- Check theme selection
-        for i, _ in ipairs(self.themes) do
-            local text_y = 200 + (i-1) * 50
-            if y >= text_y and y <= text_y + 40 then
-                self.selected_theme = i
-                if self.sounds.drop then
-                    self.sounds.drop:play()
+        local button_width = 300
+        local button_x = (love.graphics.getWidth() - button_width) / 2
+        
+        -- Theme button coordinates
+        local theme_button_y = 200
+        local theme_button_height = 50
+        
+        -- Difficulty button coordinates
+        local difficulty_button_y = 280
+        local difficulty_button_height = 50
+        
+        -- Start button coordinates
+        local start_button_y = 360
+        local start_button_height = 50
+        
+        -- First check if we're clicking on open options
+        if self.show_theme_options then
+            local popup_y = theme_button_y + 60
+            for i, _ in ipairs(self.themes) do
+                local option_y = popup_y + (i - 1) * 40
+                if x >= button_x and x <= button_x + button_width and
+                   y >= option_y and y <= option_y + 40 then
+                    self.selected_theme = i
+                    self.show_theme_options = false
+                    if self.sounds.drop then
+                        self.sounds.drop:play()
+                    end
+                    return -- Stop further processing if we clicked an option
                 end
-                break
             end
         end
         
-        -- Check difficulty selection
-        for i, _ in ipairs(self.difficulties) do
-            local text_y = 450 + (i-1) * 50
-            if y >= text_y and y <= text_y + 40 then
-                self.selected_difficulty = i
-                self.difficulty = self.difficulties[i]
+        if self.show_difficulty_options then
+            local popup_y = difficulty_button_y + 60
+            for i, _ in ipairs(self.difficulties) do
+                local option_y = popup_y + (i - 1) * 40
+                if x >= button_x and x <= button_x + button_width and
+                   y >= option_y and y <= option_y + 40 then
+                    self.selected_difficulty = i
+                    self.difficulty = self.difficulties[i]
+                    self.show_difficulty_options = false
+                    if self.sounds.drop then
+                        self.sounds.drop:play()
+                    end
+                    return -- Stop further processing if we clicked an option
+                end
+            end
+        end
+        
+        -- Then check for main buttons (only if no options are open)
+        if not self.show_theme_options and not self.show_difficulty_options then
+            -- Check if theme button was clicked
+            if x >= button_x and x <= button_x + button_width and
+               y >= theme_button_y and y <= theme_button_y + theme_button_height then
+                self.show_theme_options = true
+                self.show_difficulty_options = false
                 if self.sounds.drop then
                     self.sounds.drop:play()
                 end
-                break
+                return
+            end
+            
+            -- Check if difficulty button was clicked
+            if x >= button_x and x <= button_x + button_width and
+               y >= difficulty_button_y and y <= difficulty_button_y + difficulty_button_height then
+                self.show_difficulty_options = true
+                self.show_theme_options = false
+                if self.sounds.drop then
+                    self.sounds.drop:play()
+                end
+                return
+            end
+            
+            -- Check if start button was clicked
+            if x >= button_x and x <= button_x + button_width and
+               y >= start_button_y and y <= start_button_y + start_button_height then
+                self.state = "playing"
+                if self.sounds.drop then
+                    self.sounds.drop:play()
+                end
+                return
             end
         end
     end
 end
+function GameGUI:drawBackground()
+    local time = love.timer.getTime()
+    for i = 0, love.graphics.getHeight(), 50 do
+        local colorIntensity = 0.2 + 0.1 * math.sin(time + i * 0.1)
+        love.graphics.setColor(0.1, 0.1, 0.2 + colorIntensity, 0.5)
+        love.graphics.rectangle("fill", 0, i, love.graphics.getWidth(), 50)
+    end
+end
+
+-- Enhance hover indicator with a glow effect
+function GameGUI:drawHoverIndicator()
+    if self.hover_column and not self.game_over and self.current_player == 1 then
+        local x = MARGIN + (self.hover_column - 1) * CELL_SIZE + CELL_SIZE / 2
+        local pulse = 0.8 + 0.2 * math.sin(love.timer.getTime() * 5)
+        love.graphics.setColor(1, 1, 0, pulse) -- Yellow glow
+        love.graphics.circle("fill", x, MARGIN / 2, RADIUS * 0.9)
+        love.graphics.setColor(1, 1, 1, 0.3)
+        love.graphics.circle("line", x, MARGIN / 2, RADIUS * 1.1)
+    end
+end
+
+-- Add tooltips for buttons
+function GameGUI:drawButtonTooltip()
+    if self.state ~= "menu" then
+        local mouse_x, mouse_y = love.mouse.getPosition()
+        local buttonX = love.graphics.getWidth() - 100 - 10
+        local buttonY = 10
+        if mouse_x >= buttonX and mouse_x <= buttonX + 100 and
+           mouse_y >= buttonY and mouse_y <= buttonY + 40 then
+            love.graphics.setColor(0, 0, 0, 0.7)
+            love.graphics.rectangle("fill", mouse_x + 10, mouse_y + 10, 120, 30, 5, 5)
+            love.graphics.setColor(1, 1, 1)
+            love.graphics.printf("Return to Menu", mouse_x + 15, mouse_y + 15, 110, "left")
+        end
+    end
+end
+
 
 function GameGUI:draw()
+    self:drawBackground()
     local COLORS = self:getCurrentTheme()
     love.graphics.setColor(COLORS.background)
     love.graphics.rectangle("fill", 0, 0, love.graphics.getWidth(), love.graphics.getHeight())
@@ -182,6 +356,9 @@ function GameGUI:draw()
         )
         love.graphics.rectangle("fill", MARGIN, MARGIN + i, board_width, 1)
     end
+     local COLORS = self:getCurrentTheme()
+    love.graphics.setColor(COLORS.background)
+    love.graphics.rectangle("fill", 0, 0, love.graphics.getWidth(), love.graphics.getHeight())
 
     -- Draw hover indicator
     if self.hover_column and not self.game_over and self.current_player == 1 then
@@ -355,6 +532,7 @@ function GameGUI:draw()
         love.graphics.setFont(font)
         love.graphics.printf(buttonText, buttonX, buttonY + 10, buttonWidth, "center")
     end
+    -- self:drawButtonTooltip()
 end
 
 function GameGUI:update(dt)

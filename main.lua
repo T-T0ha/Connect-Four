@@ -13,7 +13,7 @@ function love.load()
     game_gui.themes = {
         "Vintage Sunset",  -- Original theme name
         "Retro Pixel",
-        "Minimal Monochrome",
+        "Monochrome",
         "Cyberpunk"
     }
     game_gui.difficulties = {"Easy", "Medium", "Hard"}
