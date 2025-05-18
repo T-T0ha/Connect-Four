@@ -55,9 +55,9 @@ local THEMES = {
 
 -- Difficulty settings (affects AI depth)
 local DIFFICULTY_DEPTHS = {
-    Easy = 2,
-    Medium = 4,
-    Hard = 6
+    Easy = 0,
+    Medium = 1,
+    Hard = 2
 }
 
 function GameGUI:new()
