@@ -8,7 +8,7 @@ function love.load()
     -- Initialize with menu state
     game_gui = GameGUI:new()
     game_gui.state = "menu" -- menu, playing, game_over
-    game_gui.selected_theme = 1
+    game_gui.selected_theme = 4
     game_gui.selected_difficulty = 2 -- medium by default
     game_gui.themes = {
         "Vintage Sunset",  -- Original theme name

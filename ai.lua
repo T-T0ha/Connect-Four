@@ -1,7 +1,7 @@
 local AI = {}
 
 function AI.minimaxWithAlphabeta(board, depth, alpha, beta, isMax, maximizingPlayer, maxDepth)
-    maxDepth = maxDepth or 4 -- Default to medium difficulty depth
+    maxDepth = maxDepth  -- Default to medium difficulty depth
     
     local winningMove, _ = board:checkWin(maximizingPlayer)
     if winningMove then
