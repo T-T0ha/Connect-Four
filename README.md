@@ -50,9 +50,9 @@ Alternatively, zip the folder and drag the `.zip` file onto the LÖVE applicatio
 
 | Name     | Role                  | Contribution                                                 |
 | -------- | --------------------- | ------------------------------------------------------------ |
-| Member 1 | Board Logic Developer | Game rules, board state, move validation                     |
-| Member 2 | AI Developer          | Minimax, alpha-beta pruning, evaluation functions            |
-| Member 3 | UI/UX & Integration   | Mouse handling, drawing board, win screen, final integration |
+| Mustakim Bin Mohsin | Board Logic Developer | Game rules, board state, move validation                     |
+| Abb Muhaimeen | AI Developer          | Minimax, alpha-beta pruning, evaluation functions            |
+| Md. Tamim Hasan Toha | UI/UX & Integration   | Mouse handling, drawing board, win screen, final integration |
 
 ---
 
